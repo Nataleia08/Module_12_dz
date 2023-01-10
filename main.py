@@ -1,15 +1,13 @@
-import json
 import re
-from collections import UserDict
 from class_list import Field, Name, Phone, Record, AddressBook, User, Birthday
 
 
-address_book = AddressBook()
+# address_book = AddressBook()
 user_1 = User()
 command_list = ["hello", "add", "change",
                 "phone", "show all", "close", "exit", "good bye", "birthday", "on page", "search", "save"]
-# with open("data.json", "r") as fh:
-#     address_book = json.load(fh)
+address_book = user_1.command_load()
+
 while True:
     command_name = Name()
     command_birthday = Birthday()
@@ -114,6 +112,5 @@ while True:
             print("No data!")
     else:
         print("Command undefined! Try again!")
-# print(address_book.save_dict())
-with open("data.json", "a") as fh:
-    json.dump(address_book.packaged_in_dict(), fh)
+
+user_1.command_save(address_book)
