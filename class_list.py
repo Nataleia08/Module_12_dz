@@ -208,31 +208,41 @@ class AddressBook(UserDict):
             print("Error!", e.args)
 
     def search_record(self, name) -> Record:
+
         for key_name in self.data.keys():
             if key_name == name:
                 return self.data[key_name]
 
-    def packaged_in_dict(self) -> dict:
-        """Функція перетворення адресної книги на словник"""
+    def packaged_in_dict(self) -> list:
+        """Функція перетворення адресної книги на список словників"""
         try:
-            result = {}
+            result = []
+            i = 0
             phone_result = []
             for key_name in self.data.keys():
+                result[i] = {}
                 k = key_name.title()
-                result["name"] = k
+                result[i]["name"] = k
                 if self.data[key_name].date.value != None:
                     d = str(self.data[key_name].date.value.date())
-                    result["birthday"] = d
-                phone_l = self.data[key_name].phone
-                for i in phone_l:
+                    result[i]["birthday"] = d
+                else:
+                    result[i]["birthday"] = "-"
+                for i in self.data[key_name].phone:
                     phone_result.append(str(i.value))
-                result["phone"] = phone_result
+                result[i]["phone"] = phone_result
+                i += 1
             return result
         except Exception as e:
             print("Error!", e.args)
 
-    def unpackaged_from_dict(self) -> dict:
+    def unpackaged_in_this_book(self, book: list):
         """Функція перетворення словника на адресну книгу"""
+
+        for k in book:
+            if
+
+    def command_search(self, text):
         pass
 
 
@@ -250,8 +260,11 @@ class User():
 
     def command_save(self, book: AddressBook) -> None:
         with open("data.json", "a") as fh:
-            json.dump(address_book.packaged_in_dict(), fh)
+            json.dump(book.packaged_in_dict(), fh)
 
     def command_load(self) -> AddressBook:
         with open("data.json", "r") as fh:
             address_book_dict = json.load(fh)
+        book = AddressBook()
+        book.unpackaged_in_this_book(address_book_dict)
+        return book

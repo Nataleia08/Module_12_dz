@@ -5,7 +5,7 @@ from class_list import Field, Name, Phone, Record, AddressBook, User, Birthday
 # address_book = AddressBook()
 user_1 = User()
 command_list = ["hello", "add", "change",
-                "phone", "show all", "close", "exit", "good bye", "birthday", "on page", "search", "save"]
+                "phone", "show all", "close", "exit", "good bye", "birthday", "on page", "search", "save", "load"]
 address_book = user_1.command_load()
 
 while True:
@@ -110,6 +110,22 @@ while True:
                 n_p_b += 1
         except:
             print("No data!")
+    elif input_com == "save":
+        try:
+            user_1.command_save(address_book)
+        except:
+            print("Error!")
+    elif input_com == "load":
+        try:
+            address_book = user_1.command_load()
+            address_book.show_all()
+        except:
+            print("Error!")
+    elif input_com == "search":
+        try:
+            address_book.command_search(attribute_sring)
+        except:
+            print("Error!")
     else:
         print("Command undefined! Try again!")
 
