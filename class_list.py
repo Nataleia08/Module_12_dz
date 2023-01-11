@@ -256,7 +256,30 @@ class AddressBook(UserDict):
                 self.add_record(Record(n, copy.copy(p)))
 
     def command_search(self, text):
-        pass
+        try:
+            result = []
+            for key_name in self.data.keys():
+                if (text in key_name):
+                    result.append(key_name.title())
+                    if self.data[key_name].date.value != None:
+                        d = str(self.data[key_name].date.value.date())
+                        result.append(d)
+                    phone_l = self.data[key_name].phone
+                    for i in phone_l:
+                        result.append(str(i.value))
+                    result.append("\n")
+                else:
+                    for i in self.data[key_name].phone:
+                        if text in str(i.value):
+                            result.append(key_name.title())
+                            if self.data[key_name].date.value != None:
+                                d = str(self.data[key_name].date.value.date())
+                                result.append(d)
+                            result.append(str(i.value))
+                            result.append("\n")
+            print(" ".join(result))
+        except Exception as e:
+            print("Error!", e.args)
 
 
 class User():
