@@ -1,6 +1,7 @@
 import re
 import sys
 import json
+import copy
 from collections import UserDict
 from datetime import datetime, date, timedelta
 
@@ -217,30 +218,42 @@ class AddressBook(UserDict):
         """Функція перетворення адресної книги на список словників"""
         try:
             result = []
-            i = 0
+            y = 0
             phone_result = []
             for key_name in self.data.keys():
-                result[i] = {}
-                k = key_name.title()
-                result[i]["name"] = k
+                result.append({})
+                result[y]["name"] = key_name.title()
                 if self.data[key_name].date.value != None:
                     d = str(self.data[key_name].date.value.date())
-                    result[i]["birthday"] = d
+                    result[y]["birthday"] = d
                 else:
-                    result[i]["birthday"] = "-"
+                    result[y]["birthday"] = "-"
+                phone_result.clear()
                 for i in self.data[key_name].phone:
                     phone_result.append(str(i.value))
-                result[i]["phone"] = phone_result
-                i += 1
+                result[y]["phone"] = copy.copy(phone_result)
+                y += 1
             return result
         except Exception as e:
             print("Error!", e.args)
 
-    def unpackaged_in_this_book(self, book: list):
+    def unpackaged_in_this_book(self, book: [dict]):
         """Функція перетворення словника на адресну книгу"""
-
+        n = Name()
+        p = []
+        b = Birthday()
+        p_i = Phone()
         for k in book:
-            if
+            n.value = k["name"]
+            p.clear()
+            for i in k["phone"]:
+                p_i.value = copy.copy(i)
+                p.append(copy.copy(p_i))
+            if k["birthday"] != "-":
+                b.value = copy.copy(k["birthday"])
+                self.add_record(Record(n, copy.copy(p), b))
+            else:
+                self.add_record(Record(n, copy.copy(p)))
 
     def command_search(self, text):
         pass
@@ -259,7 +272,7 @@ class User():
         sys.exit("Good bye!")
 
     def command_save(self, book: AddressBook) -> None:
-        with open("data.json", "a") as fh:
+        with open("data.json", "w") as fh:
             json.dump(book.packaged_in_dict(), fh)
 
     def command_load(self) -> AddressBook:
