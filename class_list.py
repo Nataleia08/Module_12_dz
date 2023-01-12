@@ -2,6 +2,7 @@ import re
 import sys
 import json
 import copy
+import shutil
 from collections import UserDict
 from datetime import datetime, date, timedelta
 
@@ -306,9 +307,12 @@ class User():
             json.dump(book.packaged_in_dict(), fh)
 
     def command_load(self) -> AddressBook:
-        with open("data.json", "r") as fh:
-            address_book_dict = json.load(fh)
         book = AddressBook()
-        if address_book_dict:
-            book.unpackaged_in_this_book(address_book_dict)
-        return book
+        try:
+            with open("data.json", "r") as fh:
+                address_book_dict = json.load(fh)
+                if address_book_dict:
+                    book.unpackaged_in_this_book(address_book_dict)
+            return book
+        except:
+            return book
