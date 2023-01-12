@@ -113,19 +113,20 @@ while True:
     elif input_com == "save":
         try:
             user_1.command_save(address_book)
+            print("Data saved successfully!")
         except:
-            print("Error!")
+            print("Error! ", e.args)
     elif input_com == "load":
         try:
             address_book = user_1.command_load()
             address_book.show_all()
-        except:
-            print("Error!")
+        except Exception as e:
+            print("Error! ", e.args)
     elif input_com == "search":
         try:
             address_book.command_search(attribute_sring)
-        except:
-            print("Error!")
+        except Exception as e:
+            print("Error! ", e.args)
     else:
         print("Command undefined! Try again!")
 

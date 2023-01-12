@@ -198,9 +198,10 @@ class AddressBook(UserDict):
             for key_name in self.data.keys():
                 k = key_name.title()
                 result.append(k)
-                if self.data[key_name].date.value != None:
-                    d = str(self.data[key_name].date.value.date())
-                    result.append(d)
+                if self.data[key_name].date:
+                    if self.data[key_name].date.value != None:
+                        d = str(self.data[key_name].date.value.date())
+                        result.append(d)
                 phone_l = self.data[key_name].phone
                 for i in phone_l:
                     result.append(str(i.value))
@@ -224,9 +225,12 @@ class AddressBook(UserDict):
             for key_name in self.data.keys():
                 result.append({})
                 result[y]["name"] = key_name.title()
-                if self.data[key_name].date.value != None:
-                    d = str(self.data[key_name].date.value.date())
-                    result[y]["birthday"] = d
+                if self.data[key_name].date:
+                    if self.data[key_name].date.value != None:
+                        d = str(self.data[key_name].date.value.date())
+                        result[y]["birthday"] = d
+                    else:
+                        result[y]["birthday"] = "-"
                 else:
                     result[y]["birthday"] = "-"
                 phone_result.clear()
@@ -260,13 +264,12 @@ class AddressBook(UserDict):
         try:
             result = []
             for key_name in self.data.keys():
-                if (text in key_name):
+                if (key_name.find(text) != -1):
                     result.append(key_name)
                     if self.data[key_name].date.value != None:
                         d = str(self.data[key_name].date.value.date())
                         result.append(d)
-                    phone_l = self.data[key_name].phone
-                    for i in phone_l:
+                    for i in self.data[key_name].phone:
                         result.append(str(i.value))
                     result.append("\n")
                 else:
@@ -306,5 +309,6 @@ class User():
         with open("data.json", "r") as fh:
             address_book_dict = json.load(fh)
         book = AddressBook()
-        book.unpackaged_in_this_book(address_book_dict)
+        if address_book_dict:
+            book.unpackaged_in_this_book(address_book_dict)
         return book
