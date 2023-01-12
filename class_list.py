@@ -155,6 +155,7 @@ class AddressBook(UserDict):
 
     def add_record(self, record: Record):
         """Функція додання запису"""
+
         key = str(record.name.value)
         if (key == "") or (len(record.phone) == 0):
             print("Give me name and phone please!")
@@ -251,7 +252,7 @@ class AddressBook(UserDict):
                 p.append(copy.copy(p_i))
             if k["birthday"] != "-":
                 b.value = copy.copy(k["birthday"])
-                self.add_record(Record(n, copy.copy(p), b))
+                self.add_record(Record(n, copy.copy(p), copy.copy(b)))
             else:
                 self.add_record(Record(n, copy.copy(p)))
 
@@ -260,7 +261,7 @@ class AddressBook(UserDict):
             result = []
             for key_name in self.data.keys():
                 if (text in key_name):
-                    result.append(key_name.title())
+                    result.append(key_name)
                     if self.data[key_name].date.value != None:
                         d = str(self.data[key_name].date.value.date())
                         result.append(d)
@@ -277,7 +278,10 @@ class AddressBook(UserDict):
                                 result.append(d)
                             result.append(str(i.value))
                             result.append("\n")
-            print(" ".join(result))
+            if len(result) == 0:
+                print("Not found!")
+            else:
+                print(" ".join(result))
         except Exception as e:
             print("Error!", e.args)
 
