@@ -110,6 +110,8 @@ class Record():
             days_count = birthday_now - now_day
             if days_count.days > 365:
                 days_count = days_count - timedelta(days=365)
+            if days_count.days < 0:
+                days_count = days_count + timedelta(days=365)
             return days_count
 
 
@@ -164,8 +166,8 @@ class AddressBook(UserDict):
         try:
             self.data[key] = record
             print("Contact save fine!")
-        except:
-            print("Error!")
+        except Exception as e:
+            print("Error!", e.args)
 
     def change_record(self, record: Record):
         """Функція зміни запису"""
@@ -176,8 +178,7 @@ class AddressBook(UserDict):
             return None
         try:
             self.data[key] = record
-            print(
-                f"Contact save fine! Name = {key}, phone = {record.phone.value}, birthday = {record.date.value}")
+            print("Contact update fine!")
         except:
             print("There is no user with this name!")
 
@@ -256,7 +257,7 @@ class AddressBook(UserDict):
         b = Birthday()
         p_i = Phone()
         for k in book:
-            n.value = k["name"]
+            n.value = k["name"].lower()
             p.clear()
             for i in k["phone"]:
                 p_i.value = copy.copy(i)

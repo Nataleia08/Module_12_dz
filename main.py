@@ -12,11 +12,11 @@ address_book = user_1.command_load()
 while True:
     command_name = Name()
     command_birthday = Birthday()
+    find_command = False
 # ----------------------------Розпізнавання введенної команди-----------------------
     command_string = input("Enter command:").lower()
     if command_string == ".":
         break
-    find_command = False
     for k in command_list:
         if k in command_string:
             input_com = k
@@ -100,8 +100,8 @@ while True:
         try:
             command_record = address_book.search_record(name)
             print("by", command_record.days_to_birthday().days, "days")
-        except:
-            print("No date!")
+        except Exception as e:
+            print("Error!", e.args)
     elif input_com == "on page":
         try:
             records_on_pages = int(input("Input count records on pages:"))
