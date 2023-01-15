@@ -1,8 +1,15 @@
 import re
-from class_list import Name, Phone, Record, AddressBook, User, Birthday
+from class_list_copy import Field, Name, Phone, Record, AddressBook, User, Birthday
+
+
+class Command():
+    pass
+
+# address_book = AddressBook()
 
 
 user_1 = User()
+
 command_list = ["hello", "add", "change",
                 "phone", "show all", "close", "exit", "good bye", "birthday", "on page", "search", "save", "load"]
 command_list_with_name = ["add", "change", "phone", "birthday"]
@@ -12,7 +19,7 @@ address_book = user_1.command_load()
 while True:
     command_name = Name()
     command_birthday = Birthday()
-# ----------------------------Розпізнавання введенної команди-----------------------
+    # ----------------------------Розпізнавання введенної команди-----------------------
     command_string = input("Enter command:").lower()
     if command_string == ".":
         break
@@ -115,7 +122,7 @@ while True:
         try:
             user_1.command_save(address_book)
             print("Data saved successfully!")
-        except:
+        except Exception as e:
             print("Error! ", e.args)
     elif input_com == "load":
         try:

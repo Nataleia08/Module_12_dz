@@ -1,7 +1,11 @@
-import pickle
 import re
+# import sys
+import json
+import copy
+# import shutil
 from collections import UserDict
-# from class_list import Field, Name, Phone, Record, AddressBook, User, Birthday
+from datetime import datetime, date, timedelta
+from json import JSONEncoder, JSONDecoder
 
 
 class Field():
@@ -153,6 +157,7 @@ class AddressBook(UserDict):
 
     def add_record(self, record: Record):
         """Функція додання запису"""
+
         key = str(record.name.value)
         if (key == "") or (len(record.phone) == 0):
             print("Give me name and phone please!")
@@ -165,18 +170,21 @@ class AddressBook(UserDict):
 
     def change_record(self, record: Record):
         """Функція зміни запису"""
+
         key = str(record.name.value)
         if (key == "") or (len(record.phone) == 0):
             print("Give me name and phone please!")
             return None
         try:
             self.data[key] = record
-            print("Contact save fine!")
+            print(
+                f"Contact save fine! Name = {key}, phone = {record.phone.value}, birthday = {record.date.value}")
         except:
             print("There is no user with this name!")
 
-    def search_phone(self, name) -> str:
+    def search_phone(self, name: str) -> str:
         """Функція пошуку телефону за ім'ям"""
+
         if (name == ""):
             print("Give me name please!")
             return None
@@ -195,9 +203,10 @@ class AddressBook(UserDict):
             for key_name in self.data.keys():
                 k = key_name.title()
                 result.append(k)
-                if self.data[key_name].date.value != None:
-                    d = str(self.data[key_name].date.value.date())
-                    result.append(d)
+                if self.data[key_name].date:
+                    if self.data[key_name].date.value != None:
+                        d = str(self.data[key_name].date.value.date())
+                        result.append(d)
                 phone_l = self.data[key_name].phone
                 for i in phone_l:
                     result.append(str(i.value))
@@ -206,17 +215,105 @@ class AddressBook(UserDict):
         except Exception as e:
             print("Error!", e.args)
 
-    def search_record(self, name) -> Record:
+    def search_record(self, name: str) -> Record:
+        """Функція пошуку запису за ім'ям користувача"""
+
         for key_name in self.data.keys():
             if key_name == name:
                 return self.data[key_name]
+
+    def __dict__(self) -> list:
+        """Функція перетворення адресної книги на список словників"""
+
+        try:
+            result = []
+            y = 0
+            phone_result = []
+            for key_name in self.data.keys():
+                result.append({})
+                result[y]["name"] = key_name.title()
+                if self.data[key_name].date:
+                    if self.data[key_name].date.value != None:
+                        d = str(self.data[key_name].date.value.date())
+                        result[y]["birthday"] = d
+                    else:
+                        result[y]["birthday"] = "-"
+                else:
+                    result[y]["birthday"] = "-"
+                phone_result.clear()
+                for i in self.data[key_name].phone:
+                    phone_result.append(str(i.value))
+                result[y]["phone"] = copy.copy(phone_result)
+                y += 1
+            return result
+        except Exception as e:
+            print("Error!", e.args)
+
+    def unpackaged_in_this_book(self, book: [dict]):
+        """Функція перетворення словника на адресну книгу"""
+
+        n = Name()
+        p = []
+        b = Birthday()
+        p_i = Phone()
+        for k in book:
+            n.value = k["name"]
+            p.clear()
+            for i in k["phone"]:
+                p_i.value = copy.copy(i)
+                p.append(copy.copy(p_i))
+            if k["birthday"] != "-":
+                b.value = copy.copy(k["birthday"])
+                self.add_record(Record(n, copy.copy(p), copy.copy(b)))
+            else:
+                self.add_record(Record(n, copy.copy(p)))
+
+    def command_search(self, text: str):
+        """Функція пошуку запису в адресній книзі по введеному тексту"""
+
+        try:
+            result = []
+            for key_name in self.data.keys():
+                if (key_name.find(text) != -1):
+                    result.append(key_name)
+                    if self.data[key_name].date.value != None:
+                        d = str(self.data[key_name].date.value.date())
+                        result.append(d)
+                    for i in self.data[key_name].phone:
+                        result.append(str(i.value))
+                    result.append("\n")
+                else:
+                    for i in self.data[key_name].phone:
+                        if text in str(i.value):
+                            result.append(key_name.title())
+                            if self.data[key_name].date.value != None:
+                                d = str(self.data[key_name].date.value.date())
+                                result.append(d)
+                            result.append(str(i.value))
+                            result.append("\n")
+            if len(result) == 0:
+                print("Not found!")
+            else:
+                print(" ".join(result))
+        except Exception as e:
+            print("Error!", e.args)
+
+
+class AddressBookJSONEncoder(JSONEncoder):
+    def default(self, obj: AddressBook) -> dict:
+        return obj.__dict__
+
+
+# class AddressBookJSONDecoder(JSONDecoder):
+#     def decode(self, s: str, _w: Callable[..., Any] = ...) -> Any:
+#         return super().decode(s, _w)
 
 
 class User():
     def __init__(self):
         pass
 
-    def command_hello(self):
+    def command_hello(self) -> None:
         """Функція привітання"""
         print("How can I help you?")
 
@@ -224,121 +321,21 @@ class User():
         """Функція виходу"""
         sys.exit("Good bye!")
 
+    def command_save(self, book: AddressBook) -> None:
+        """Функція збереження записів адресної книги до файлу"""
 
-# address_book = AddressBook()
-user_1 = User()
-command_list = ["hello", "add", "change",
-                "phone", "show all", "close", "exit", "good bye", "birthday", "on page", "search", "save"]
+        with open("data.json", "w") as fh:
+            json.dump(book, fh, cls=AddressBookJSONEncoder)
 
-with open("data.bin", "rb") as fh:
-    address_book = pickle.load(fh)
+    def command_load(self) -> AddressBook:
+        """Функція завантаження даних із файлу до адресної книги"""
 
-while True:
-    command_name = Name()
-    command_birthday = Birthday()
-# ----------------------------Розпізнавання введенної команди-----------------------
-    command_string = input("Enter command:").lower()
-    if command_string == ".":
-        break
-    find_command = False
-    for k in command_list:
-        if k in command_string:
-            input_com = k
-            attribute_sring = command_string.replace(input_com, "").strip()
-            find_command = True
-            break
-    if not find_command:
-        print("Command undefined! Try again!")
-        continue
-    input_list = attribute_sring.split(" ")
-# ------------------------------Пошук імені -----------------------------------------------
-    if (input_com == "add") or (input_com == "change") or (input_com == "phone") or (input_com == "birthday"):
-        for i in input_list:
-            if i.isalpha():
-                name = i
-                command_name.value = i
-                input_list.remove(i)
-                break
-# ------------------------------Пошук телефону------------------------------------------------
-    if (input_com == "add") or (input_com == "change"):
-        command_phone = []
-        phone_id = 0
-        s = re.findall(
-            r"[+380]?[(]?[0-9]{2}[)]?[0-9]{3}[-]?[0-9]{1,2}[-]?[0-9]{2,3}\b", " ".join(input_list))
-        if s != None:
-            for i in s:
-                i_phone = Phone()
-                i_phone.value = i
-                command_phone.append(i_phone)
-                input_list = (" ".join(input_list).replace(i, "")).split(" ")
-# ------------------------------Пошук дати народження---------------------------------------------
-        date_birthday = None
-        for i in input_list:
-            if (re.search(r"[0-9]{4}[-]?[/]?[.]?[0-9]{2}[-]?[/]?[.]?[0-9]{2}\b", i) != None):
-                date_birthday = re.search(
-                    r"[0-9]{4}[-]?[/]?[.]?[0-9]{2}[-]?[/]?[.]?[0-9]{2}\b", i).string
-                break
-            if (re.search(r"[0-9]{2}[-]?[/]?[.]?[0-9]{2}[-]?[/]?[.]?[0-9]{4}\b", i) != None):
-                date_birthday = re.search(
-                    r"[0-9]{2}[-]?[/]?[.]?[0-9]{2}[-]?[/]?[.]?[0-9]{4}\b", i).string
-                break
-        command_birthday.value = date_birthday
-# ----------------------------Виконання команди--------------------------------------
-    if input_com == "hello":
-        user_1.command_hello()
-    elif (input_com == "close") or (input_com == "exit") or (input_com == "good bye"):
-        user_1.command_exit()
-    elif input_com == "add":
+        book = AddressBook()
         try:
-            if (not name) or (len(command_phone) == 0):
-                print("Give me name and phone please!")
-                continue
-            new_record = Record(command_name, command_phone, command_birthday)
-            address_book.add_record(new_record)
+            with open("data.json", "r") as fh:
+                address_book_dict = json.load(fh)
+                if address_book_dict:
+                    book.unpackaged_in_this_book(address_book_dict)
+            return book
         except:
-            print("Give me name and phone please!")
-    elif input_com == "change":
-        try:
-            if (not name) or (len(command_phone) == 0):
-                print("Give me name and phone please!")
-                continue
-            command_record = address_book.search_record(name)
-            command_name = command_record.name
-            if command_birthday.value == None:
-                command_birthday = command_record.date
-            new_record = Record(command_name, command_phone, command_birthday)
-            address_book.change_record(new_record)
-        except:
-            print("Give me name and phone please!")
-    elif input_com == "phone":
-        try:
-            address_book.search_phone(name)
-        except:
-            print("Enter user name!")
-    elif input_com == "show all":
-        try:
-            address_book.show_all()
-        except:
-            print("No data!")
-    elif input_com == "birthday":
-        try:
-            command_record = address_book.search_record(name)
-            print("by", command_record.days_to_birthday().days, "days")
-        except:
-            print("No date!")
-    elif input_com == "on page":
-        try:
-            records_on_pages = int(input("Input count records on pages:"))
-            n_p_b = 1
-            for p_b in address_book.iterator(records_on_pages):
-                print("Pages:", n_p_b, p_b)
-                n_p_b += 1
-        except:
-            print("No data!")
-    else:
-        print("Command undefined! Try again!")
-# print(address_book.save_dict())
-# with open("data.json", "a") as fh:
-#     json.dump(address_book.packaged_in_dict(), fh)
-with open("data.bin", "ab") as fh:
-    pickle.dump(address_book, fh)
+            return book
