@@ -275,7 +275,7 @@ class AddressBook(UserDict):
             result = []
             for key_name in self.data.keys():
                 if (key_name.find(text) != -1):
-                    result.append(key_name)
+                    result.append(key_name.title())
                     if self.data[key_name].date.value != None:
                         d = str(self.data[key_name].date.value.date())
                         result.append(d)

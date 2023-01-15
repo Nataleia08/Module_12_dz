@@ -8,6 +8,8 @@ command_list = ["hello", "add", "change",
 command_list_with_name = ["add", "change", "phone", "birthday"]
 command_list_exit = ["close", "exit", "good bye"]
 address_book = user_1.command_load()
+print("Address book:")
+address_book.show_all()
 
 while True:
     command_name = Name()
@@ -63,6 +65,7 @@ while True:
     if input_com == "hello":
         user_1.command_hello()
     elif command_list_exit.count(input_com) != 0:
+        user_1.command_save(address_book)
         user_1.command_exit()
     elif input_com == "add":
         try:
@@ -120,6 +123,7 @@ while True:
     elif input_com == "load":
         try:
             address_book = user_1.command_load()
+            print("Address book:")
             address_book.show_all()
         except Exception as e:
             print("Error! ", e.args)
