@@ -169,18 +169,21 @@ class AddressBook(UserDict):
 
     def change_record(self, record: Record):
         """Функція зміни запису"""
+
         key = str(record.name.value)
         if (key == "") or (len(record.phone) == 0):
             print("Give me name and phone please!")
             return None
         try:
             self.data[key] = record
-            print("Contact save fine!")
+            print(
+                f"Contact save fine! Name = {key}, phone = {record.phone.value}, birthday = {record.date.value}")
         except:
             print("There is no user with this name!")
 
-    def search_phone(self, name) -> str:
+    def search_phone(self, name: str) -> str:
         """Функція пошуку телефону за ім'ям"""
+
         if (name == ""):
             print("Give me name please!")
             return None
@@ -211,7 +214,8 @@ class AddressBook(UserDict):
         except Exception as e:
             print("Error!", e.args)
 
-    def search_record(self, name) -> Record:
+    def search_record(self, name: str) -> Record:
+        """Функція пошуку запису за ім'ям користувача"""
 
         for key_name in self.data.keys():
             if key_name == name:
@@ -219,6 +223,7 @@ class AddressBook(UserDict):
 
     def packaged_in_dict(self) -> list:
         """Функція перетворення адресної книги на список словників"""
+
         try:
             result = []
             y = 0
@@ -245,6 +250,7 @@ class AddressBook(UserDict):
 
     def unpackaged_in_this_book(self, book: [dict]):
         """Функція перетворення словника на адресну книгу"""
+
         n = Name()
         p = []
         b = Birthday()
@@ -261,7 +267,9 @@ class AddressBook(UserDict):
             else:
                 self.add_record(Record(n, copy.copy(p)))
 
-    def command_search(self, text):
+    def command_search(self, text: str):
+        """Функція пошуку запису в адресній книзі по введеному тексту"""
+
         try:
             result = []
             for key_name in self.data.keys():
@@ -303,10 +311,14 @@ class User():
         sys.exit("Good bye!")
 
     def command_save(self, book: AddressBook) -> None:
+        """Функція збереження записів адресної книги до файлу"""
+
         with open("data.json", "w") as fh:
             json.dump(book.packaged_in_dict(), fh)
 
     def command_load(self) -> AddressBook:
+        """Функція завантаження даних із файлу до адресної книги"""
+
         book = AddressBook()
         try:
             with open("data.json", "r") as fh:
